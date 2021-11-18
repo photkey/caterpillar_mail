@@ -5,16 +5,18 @@ from email.parser import Parser
 from email.header import decode_header
 from email.utils import parseaddr
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.header import Header
 
 class SendEmail(object):
     def __init__(self,send_mail_server):
         self.__smtp = smtplib.SMTP(send_mail_server, port=25)
         self.__From=""
-        self.__To=""
+        self.__To=[]
         self.__password=""
         self.__subject=""
         self.__context=""
-        self.__mail=None
+        self.__main_msg=None
 
     def __del__(self):
         try:
@@ -36,7 +38,7 @@ class SendEmail(object):
 
     @To.setter
     def To(self, To):
-        self.__To = To
+        self.__To = [elem.strip() for elem in To.split(",")]
 
     @property
     def password(self):
@@ -63,12 +65,13 @@ class SendEmail(object):
         self.__subject=subject
 
     def send(self):
-        self.__mail=MIMEText(self.__context)
-        self.__mail["From"]=self.__From
-        self.__mail["To"]=self.__To
-        self.__mail["Subject"]=self.__subject
+        self.__main_msg=MIMEMultipart()
+        self.__main_msg["From"]=self.__From
+        self.__main_msg["To"]=", ".join(self.__To)
+        self.__main_msg["Subject"]=Header(self.__subject,"utf-8")
+        self.__main_msg.attach(MIMEText(self.__context))
         self.__smtp.login(self.__From,self.__password)
-        self.__smtp.sendmail(self.__From, self.__To, self.__mail.as_string())
+        self.__smtp.sendmail(self.__From, self.__To, self.__main_msg.as_string())
 
 class Mail(object):
     def __init__(self):
@@ -260,9 +263,8 @@ class Email(object):
         self.__auth_code=auth_code
         self.__send_email=None
         self.__read_email=None
-        self.__init_send_email_and_read_email()
 
-    def __init_send_email_and_read_email(self):
+    def __init_send_email(self):
         if re.search("@163\.com",self.__username):
             self.__send_email=Send163Email()
             self.__read_email=Read163Email()
@@ -275,7 +277,7 @@ class Email(object):
         else:
             raise ValueError("当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
 
-    def send(self,to_addr,subject="",context=""):
+    def send(self,to_addrs,subject="",context=""):
         """
         功能：发送邮件
         :param to_addr: 收件人邮箱地址
@@ -283,9 +285,11 @@ class Email(object):
         :param context: 邮件内容
         :return:
         """
+        if not self.__send_email:
+            self.__init_send_email()
         self.__send_email.password=self.__auth_code
         self.__send_email.From=self.__username
-        self.__send_email.To=to_addr
+        self.__send_email.To=to_addrs
         self.__send_email.context=context
         self.__send_email.subject=subject
         self.__send_email.send()
