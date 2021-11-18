@@ -12,7 +12,7 @@ caterpillar\_mail 安装方式
 
 .. code:: bash
 
-    pip install caterpillar_mail
+    pip install -U caterpillar_mail
 
 caterpillar\_mail 使用说明
 --------------------------
