@@ -70,7 +70,7 @@ class SendEmail(object):
         self.__smtp.login(self.__From,self.__password)
         self.__smtp.sendmail(self.__From, self.__To, self.__mail.as_string())
 
-class Email(object):
+class Mail(object):
     def __init__(self):
         self.__subject = ""
         self.__from_addr = ""
@@ -158,7 +158,7 @@ class ReadEmail(object):
             _, lines, _ = self.__pop.retr(i)
             msg_content = b'\r\n'.join(lines).decode('utf-8')
             msg_obj = Parser().parsestr(msg_content)
-            obj = Email()
+            obj = Mail()
             email_subject = self.__decode_header_msg(msg_obj["subject"])
             if subject.strip() and subject.strip() != email_subject and not re.search(subject.strip(), email_subject):
                 continue
@@ -252,3 +252,40 @@ class Read126Email(ReadEmail):
 class ReadQQEmail(ReadEmail):
     def __init__(self):
         super(ReadQQEmail,self).__init__("pop.qq.com")
+
+
+class Email(object):
+    def __init__(self,username,auth_code):
+        self.__username=username
+        self.__auth_code=auth_code
+        self.__send_email=None
+        self.__read_email=None
+        self.__init_send_email_and_read_email()
+
+    def __init_send_email_and_read_email(self):
+        if re.search("@163\.com",self.__username):
+            self.__send_email=Send163Email()
+            self.__read_email=Read163Email()
+        elif re.search("@126\.com",self.__username):
+            self.__send_email=Send126Email()
+            self.__read_email=Read126Email()
+        elif re.search("@qq\.com",self.__username):
+            self.__send_email=SendQQEmail()
+            self.__read_email=ReadQQEmail()
+        else:
+            raise ValueError("当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
+
+    def send(self,to_addr,subject="",context=""):
+        """
+        功能：发送邮件
+        :param to_addr: 收件人邮箱地址
+        :param subject: 邮件标题
+        :param context: 邮件内容
+        :return:
+        """
+        self.__send_email.password=self.__auth_code
+        self.__send_email.From=self.__username
+        self.__send_email.To=to_addr
+        self.__send_email.context=context
+        self.__send_email.subject=subject
+        self.__send_email.send()
