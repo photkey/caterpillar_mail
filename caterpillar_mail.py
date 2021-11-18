@@ -237,6 +237,10 @@ class Send126Email(SendEmail):
     def __init__(self):
         super(Send126Email,self).__init__("smtp.126.com")
 
+class SendQQEmail(SendEmail):
+    def __init__(self):
+        super(SendQQEmail,self).__init__("smtp.qq.com")
+
 class Read163Email(ReadEmail):
     def __init__(self):
         super(Read163Email,self).__init__("pop.163.com")
@@ -244,3 +248,7 @@ class Read163Email(ReadEmail):
 class Read126Email(ReadEmail):
     def __init__(self):
         super(Read126Email,self).__init__("pop.126.com")
+
+class ReadQQEmail(ReadEmail):
+    def __init__(self):
+        super(ReadQQEmail,self).__init__("pop.qq.com")
