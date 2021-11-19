@@ -23,7 +23,7 @@ setup(
     install_requires=[
     ],
     platforms=["all"],
-    url='https://gitee.com/redrose2020_admin/caterpillar_mail',
+    url='https://gitee.com/redrose2100/caterpillar_mail',
     include_package_data=True,
     entry_points={
     },
