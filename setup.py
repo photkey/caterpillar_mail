@@ -6,7 +6,7 @@ from distutils.core import setup
 with open("README.rst", "r", encoding="utf-8") as f:
     long_description = f.read()
 
-VERSION="1.0.10"
+VERSION="1.0.11"
 
 setup(
     name="caterpillar_mail",

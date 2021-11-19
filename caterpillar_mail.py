@@ -255,6 +255,10 @@ class Send126Email(SendEmail):
     def __init__(self):
         super(Send126Email,self).__init__("smtp.126.com")
 
+class SendYealnetEmail(SendEmail):
+    def __init__(self):
+        super(SendYealnetEmail,self).__init__("smtp.yeah.net")
+
 class SendQQEmail(SendEmail):
     def __init__(self):
         super(SendQQEmail,self).__init__("smtp.qq.com")
@@ -266,6 +270,10 @@ class Read163Email(ReadEmail):
 class Read126Email(ReadEmail):
     def __init__(self):
         super(Read126Email,self).__init__("pop.126.com")
+
+class ReadYealnetEmail(ReadEmail):
+    def __init__(self):
+        super(ReadYealnetEmail,self).__init__("pop.yeah.net")
 
 class ReadQQEmail(ReadEmail):
     def __init__(self):
@@ -286,6 +294,8 @@ class Email(object):
             self.__send_email=Send126Email()
         elif re.search("@qq\.com",self.__username):
             self.__send_email=SendQQEmail()
+        elif re.search("@yeah\.net",self.__username):
+            self.__send_email=SendYealnetEmail()
         else:
             raise ValueError("当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
 
@@ -299,6 +309,9 @@ class Email(object):
         elif re.search("@qq\.com", self.__username):
             self.__read_email = ReadQQEmail()
             self.__read_email.login(self.__username, self.__auth_code)
+        elif re.search("@yeah\.net",self.__username):
+            self.__read_email=ReadYealnetEmail()
+            self.__read_email.login(self.__username,self.__auth_code)
         else:
             raise ValueError(
                 "当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
