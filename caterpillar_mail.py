@@ -78,8 +78,8 @@ class Mail(object):
         self.__subject = ""
         self.__from_addr = ""
         self.__from_name = ""
-        self.__to_name = ""
-        self.__to_addr = ""
+        self.__to_name = []
+        self.__to_addr = []
         self.__context = ""
         self.__html = ""
         self.__date = ""
@@ -152,7 +152,7 @@ class ReadEmail(object):
         _, mails, _ = self.__pop.list()
         return len(mails)
 
-    def get_latest_n_email(self, n=1, subject="", from_addr="", from_name=""):
+    def get_latest_n_email(self, n=1, subject="", from_addr="", to_addr=""):
         _, mails, _ = self.__pop.list()
         index = len(mails)
         results = []
@@ -169,15 +169,30 @@ class ReadEmail(object):
             email_from_name, email_from_addr = parseaddr(msg_obj["From"])
             email_from_name = self.__decode_header_msg(email_from_name)
             email_from_addr = self.__decode_header_msg(email_from_addr)
-            if from_name.strip() and from_name.strip() != email_from_name and not re.search(from_name, email_from_name):
-                continue
-            if from_addr.strip() and from_addr.strip() != email_from_addr and not re.search(from_addr, email_from_addr):
+            if from_addr.strip() and from_addr.strip() not in  email_from_addr and not re.search(from_addr, email_from_addr):
                 continue
             obj.from_name = email_from_name
             obj.from_addr = email_from_addr
-            email_to_name, email_to_addr = parseaddr(msg_obj["To"])
-            email_to_name = self.__decode_header_msg(email_to_name)
-            email_to_addr = self.__decode_header_msg(email_to_addr)
+
+            email_to_name=[]
+            email_to_addr=[]
+            for elem in msg_obj["To"].split(","):
+                temp_email_to_name, temp_email_to_addr = parseaddr(elem)
+                temp_email_to_name =self.__decode_header_msg(temp_email_to_name)
+                temp_email_to_addr = self.__decode_header_msg(temp_email_to_addr)
+                email_to_name.append(temp_email_to_name)
+                email_to_addr.append(temp_email_to_addr)
+
+            to_addr=to_addr.strip()
+            to_addr_flag=False
+            if to_addr:
+                for addr in email_to_addr:
+                    if to_addr in addr or re.search(to_addr,addr):
+                        to_addr_flag=True
+                        break
+                if not to_addr_flag:
+                    continue
+
             obj.to_name = email_to_name
             obj.to_addr = email_to_addr
             email_date = self.__decode_header_msg(msg_obj["Date"])
@@ -267,15 +282,26 @@ class Email(object):
     def __init_send_email(self):
         if re.search("@163\.com",self.__username):
             self.__send_email=Send163Email()
-            self.__read_email=Read163Email()
         elif re.search("@126\.com",self.__username):
             self.__send_email=Send126Email()
-            self.__read_email=Read126Email()
         elif re.search("@qq\.com",self.__username):
             self.__send_email=SendQQEmail()
-            self.__read_email=ReadQQEmail()
         else:
             raise ValueError("当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
+
+    def __init_read_email(self):
+        if re.search("@163\.com", self.__username):
+            self.__read_email = Read163Email()
+            self.__read_email.login(self.__username,self.__auth_code)
+        elif re.search("@126\.com", self.__username):
+            self.__read_email = Read126Email()
+            self.__read_email.login(self.__username, self.__auth_code)
+        elif re.search("@qq\.com", self.__username):
+            self.__read_email = ReadQQEmail()
+            self.__read_email.login(self.__username, self.__auth_code)
+        else:
+            raise ValueError(
+                "当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
 
     def send(self,to_addrs,subject="",context=""):
         """
@@ -293,3 +319,27 @@ class Email(object):
         self.__send_email.context=context
         self.__send_email.subject=subject
         self.__send_email.send()
+
+    def get_all_emails_num(self):
+        if not self.__read_email:
+            self.__init_read_email()
+        return self.__read_email.get_emails_num()
+
+    def get_latest_n_email(self,n=1, subject="", from_addr="", to_addr=""):
+        if not self.__read_email:
+            self.__init_read_email()
+        return self.__read_email.get_latest_n_email(n=n,subject=subject,from_addr=from_addr,to_addr=to_addr)
+
+    def get_latest_email(self,subject="", from_addr="", to_addr=""):
+        """
+        功能：返回最新的邮件
+        @param subject: 邮件主题过滤条件，可选，不填时默认不进行过滤，支持子串或者正则匹配
+        @param from_addr: 发件人邮箱
+        @param to_addr: 收件人邮箱
+        @return:
+        """
+        if not self.__read_email:
+            self.__init_read_email()
+        objs=self.__read_email.get_latest_n_email(n=1,subject=subject,from_addr=from_addr,to_addr=to_addr)
+        if objs:
+            return objs[0]
