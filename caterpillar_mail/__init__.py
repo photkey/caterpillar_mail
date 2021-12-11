@@ -88,12 +88,13 @@ class SendEmail(object):
 
     @attach.setter
     def attach(self,attach):
-        for elem in attach.split(","):
-            elem=elem.strip()
-            if not Path(elem).exists():
-                log.warning(f"当前邮件的附件路径 {attach}，不存在，请检查确认......")
-            else:
-                self.__attach.append(elem)
+        if attach.strip():
+            for elem in attach.split(","):
+                elem=elem.strip()
+                if not Path(elem).exists():
+                    log.warning(f"当前邮件的附件路径 {attach}，不存在，请检查确认......")
+                else:
+                    self.__attach.append(elem)
 
     def __generate_attach_file_data(self,attach):
         data = open(attach, 'rb')
