@@ -1,0 +1,132 @@
+{
+  "163.com": {
+    "pop": "pop.163.com",
+    "smtp": "smtp.163.com",
+    "ssl": false
+  },
+  "188.com": {
+    "pop": "pop.188.com",
+    "smtp": "smtp.188.com",
+    "ssl": false
+  },
+  "126.com": {
+    "pop": "pop.126.com",
+    "smtp": "smtp.126.com",
+    "ssl": false
+  },
+  "vip.163.com": {
+    "pop": "pop.vip.163.com",
+    "smtp": "smtp.vip.163.com",
+    "ssl": true
+  },
+  "netease.com": {
+    "pop": "pop.netease.com",
+    "smtp": "smtp.netease.com",
+    "ssl": true
+  },
+  "139.com": {
+    "pop": "pop.139.com",
+    "smtp": "smtp.139.com",
+    "ssl": false
+  },
+  "qq.com": {
+    "pop": "pop.qq.com",
+    "smtp": "smtp.qq.com",
+    "ssl": false
+  },
+  "qq.exmail.com": {
+    "pop": "pop.qq.exmail.com",
+    "smtp": "smtp.qq.exmail.com",
+    "ssl": true
+  },
+  "gmail.com": {
+    "pop": "pop.gmail.com",
+    "smtp": "smtp.gmail.com",
+    "ssl": true
+  },
+  "foxmail.com": {
+    "pop": "pop.foxmail.com",
+    "smtp": "smtp.foxmail.com",
+    "ssl": false
+  },
+  "sina.com.cn": {
+    "pop": "pop3.sina.com.cn",
+    "smtp": "smtp.sina.com.cn",
+    "ssl": false
+  },
+  "vip.sina.com": {
+    "pop": "pop3.vip.sina.com",
+    "smtp": "smtp.vip.sina.com",
+    "ssl": true
+  },
+  "sohu.com": {
+    "pop": "pop3.sohu.com",
+    "smtp": "smtp.sohu.com",
+    "ssl": false
+  },
+  "tom.com": {
+    "pop": "pop.tom.com",
+    "smtp": "smtp.tom.com",
+    "ssl": false
+  },
+  "china.com": {
+    "pop": "pop.china.com",
+    "smtp": "smtp.china.com",
+    "ssl": false
+  },
+  "21cn.com": {
+    "pop": "pop.21cn.com",
+    "smtp": "smtp.21cn.com",
+    "ssl": false
+  },
+  "21cn.net": {
+    "pop": "pop.21cn.net",
+    "smtp": "smtp.21cn.net",
+    "ssl": true
+  },
+  "vip.21cn.com": {
+    "pop": "pop.vip.21cn.com",
+    "smtp": "smtp.vip.21cn.com",
+    "ssl": true
+  },
+  "y.vip.21cn.com": {
+    "pop": "pop.y.vip.21cn.com",
+    "smtp": "smtp.y.vip.21cn.com",
+    "ssl": true
+  },
+  "x263.net": {
+    "pop": "pop.x263.net",
+    "smtp": "smtp.x263.net",
+    "ssl": false
+  },
+  "263.net.cn": {
+    "pop": "pop.263.net.cn",
+    "smtp": "smtp.263.net.cn",
+    "ssl": false
+  },
+  "263.net": {
+    "pop": "pop3.263.net",
+    "smtp": "smtp.263.net",
+    "ssl": false
+  },
+  "etang.com": {
+    "pop": "pop.etang.com",
+    "smtp": "smtp.etang.com",
+    "ssl": false
+  },
+  "hotmail.com": {
+    "pop": "pop3.live.com",
+    "smtp": "smtp.live.com",
+    "ssl": true
+  },
+  "yahoo.com.cn": {
+    "pop": "pop3.mail.yahoo.com.cn",
+    "smtp": "smtp.mail.yahoo.com.cn",
+    "ssl": true
+  },
+  "yahoo.com": {
+    "pop": "pop3.mail.yahoo.com",
+    "smtp": "smtp.mail.yahoo.com",
+    "ssl": true
+  }
+}

@@ -1,22 +1,31 @@
 import re
+import json
 import poplib
 import smtplib
+from pathlib import Path
 from email.parser import Parser
-from email.header import decode_header
+from email.header import Header
 from email.utils import parseaddr
 from email.mime.text import MIMEText
+from email.header import decode_header
 from email.mime.multipart import MIMEMultipart
-from email.header import Header
+
+CURRENT_DIR = Path(__file__).resolve().parent
+
 
 class SendEmail(object):
-    def __init__(self,send_mail_server):
-        self.__smtp = smtplib.SMTP(send_mail_server, port=25)
-        self.__From=""
-        self.__To=[]
-        self.__password=""
-        self.__subject=""
-        self.__context=""
-        self.__main_msg=None
+    def __init__(self, send_mail_server, is_ssl=False):
+        if is_ssl:
+            self.__smtp = smtplib.SMTP_SSL(send_mail_server)
+        else:
+            self.__smtp = smtplib.SMTP(send_mail_server)
+        self.__is_ssl = is_ssl
+        self.__From = ""
+        self.__To = []
+        self.__password = ""
+        self.__subject = ""
+        self.__context = ""
+        self.__main_msg = None
 
     def __del__(self):
         try:
@@ -45,33 +54,34 @@ class SendEmail(object):
         return self.__password
 
     @password.setter
-    def password(self,pwd):
-        self.__password=pwd
+    def password(self, pwd):
+        self.__password = pwd
 
     @property
     def context(self):
         return self.__context
 
     @context.setter
-    def context(self,ctx):
-        self.__context=ctx
+    def context(self, ctx):
+        self.__context = ctx
 
     @property
     def subject(self):
         return self.__subject
 
     @subject.setter
-    def subject(self,subject):
-        self.__subject=subject
+    def subject(self, subject):
+        self.__subject = subject
 
     def send(self):
-        self.__main_msg=MIMEMultipart()
-        self.__main_msg["From"]=self.__From
-        self.__main_msg["To"]=", ".join(self.__To)
-        self.__main_msg["Subject"]=Header(self.__subject,"utf-8")
+        self.__main_msg = MIMEMultipart()
+        self.__main_msg["From"] = self.__From
+        self.__main_msg["To"] = ", ".join(self.__To)
+        self.__main_msg["Subject"] = Header(self.__subject, "utf-8")
         self.__main_msg.attach(MIMEText(self.__context))
-        self.__smtp.login(self.__From,self.__password)
+        self.__smtp.login(self.__From, self.__password)
         self.__smtp.sendmail(self.__From, self.__To, self.__main_msg.as_string())
+
 
 class Mail(object):
     def __init__(self):
@@ -142,8 +152,9 @@ class Mail(object):
 
 
 class ReadEmail(object):
-    def __init__(self, mail_server):
+    def __init__(self, mail_server, is_ssl=False):
         self.__pop_server = mail_server
+        self.__is_ssl = is_ssl
         self.__username = ""
         self.__password = ""
         self.__pop = None
@@ -169,26 +180,27 @@ class ReadEmail(object):
             email_from_name, email_from_addr = parseaddr(msg_obj["From"])
             email_from_name = self.__decode_header_msg(email_from_name)
             email_from_addr = self.__decode_header_msg(email_from_addr)
-            if from_addr.strip() and from_addr.strip() not in  email_from_addr and not re.search(from_addr, email_from_addr):
+            if from_addr.strip() and from_addr.strip() not in email_from_addr and not re.search(from_addr,
+                                                                                                email_from_addr):
                 continue
             obj.from_name = email_from_name
             obj.from_addr = email_from_addr
 
-            email_to_name=[]
-            email_to_addr=[]
+            email_to_name = []
+            email_to_addr = []
             for elem in msg_obj["To"].split(","):
                 temp_email_to_name, temp_email_to_addr = parseaddr(elem)
-                temp_email_to_name =self.__decode_header_msg(temp_email_to_name)
+                temp_email_to_name = self.__decode_header_msg(temp_email_to_name)
                 temp_email_to_addr = self.__decode_header_msg(temp_email_to_addr)
                 email_to_name.append(temp_email_to_name)
                 email_to_addr.append(temp_email_to_addr)
 
-            to_addr=to_addr.strip()
-            to_addr_flag=False
+            to_addr = to_addr.strip()
+            to_addr_flag = False
             if to_addr:
                 for addr in email_to_addr:
-                    if to_addr in addr or re.search(to_addr,addr):
-                        to_addr_flag=True
+                    if to_addr in addr or re.search(to_addr, addr):
+                        to_addr_flag = True
                         break
                 if not to_addr_flag:
                     continue
@@ -221,7 +233,11 @@ class ReadEmail(object):
     def login(self, username, password):
         self.__username = username
         self.__password = password
-        self.__pop = poplib.POP3(self.__pop_server)
+        if self.__is_ssl:
+            self.__pop = poplib.POP3_SSL(self.__pop_server)
+        else:
+            self.__pop = poplib.POP3(self.__pop_server)
+
         self.__pop.set_debuglevel(1)
         self.__pop.user(username)
         self.__pop.pass_(password)
@@ -247,76 +263,36 @@ class ReadEmail(object):
                         txt = content.decode(charset)
         return txt
 
-class Send163Email(SendEmail):
-    def __init__(self):
-        super(Send163Email,self).__init__("smtp.163.com")
-
-class Send126Email(SendEmail):
-    def __init__(self):
-        super(Send126Email,self).__init__("smtp.126.com")
-
-class SendYealnetEmail(SendEmail):
-    def __init__(self):
-        super(SendYealnetEmail,self).__init__("smtp.yeah.net")
-
-class SendQQEmail(SendEmail):
-    def __init__(self):
-        super(SendQQEmail,self).__init__("smtp.qq.com")
-
-class Read163Email(ReadEmail):
-    def __init__(self):
-        super(Read163Email,self).__init__("pop.163.com")
-
-class Read126Email(ReadEmail):
-    def __init__(self):
-        super(Read126Email,self).__init__("pop.126.com")
-
-class ReadYealnetEmail(ReadEmail):
-    def __init__(self):
-        super(ReadYealnetEmail,self).__init__("pop.yeah.net")
-
-class ReadQQEmail(ReadEmail):
-    def __init__(self):
-        super(ReadQQEmail,self).__init__("pop.qq.com")
-
 
 class Email(object):
-    def __init__(self,username,auth_code):
-        self.__username=username
-        self.__auth_code=auth_code
-        self.__send_email=None
-        self.__read_email=None
+    def __init__(self, username, auth_code):
+        self.__username = username
+        self.__auth_code = auth_code
+        self.__send_email = None
+        self.__read_email = None
+        with open(CURRENT_DIR / "email_suffix_to_server.json") as f:
+            self.__suffix_to_server = json.load(f)
 
     def __init_send_email(self):
-        if re.search("@163\.com",self.__username):
-            self.__send_email=Send163Email()
-        elif re.search("@126\.com",self.__username):
-            self.__send_email=Send126Email()
-        elif re.search("@qq\.com",self.__username):
-            self.__send_email=SendQQEmail()
-        elif re.search("@yeah\.net",self.__username):
-            self.__send_email=SendYealnetEmail()
+        suffix = self.__username.split("@")[-1].strip()
+        if suffix in self.__suffix_to_server.keys():
+            self.__send_email = SendEmail(self.__suffix_to_server[suffix]["smtp"],
+                                          is_ssl=self.__suffix_to_server[suffix]["ssl"])
         else:
-            raise ValueError("当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
+            raise ValueError(
+                f"暂不支持{suffix}类型的邮箱，请到到https://gitee.com/redrose2100/caterpillar_mail或者https://github.com/redrose2100/caterpillar_mail 提Issue需求，目前支持的邮箱如下：{'  '.join(list(self.__suffix_to_server.keys()))}")
 
     def __init_read_email(self):
-        if re.search("@163\.com", self.__username):
-            self.__read_email = Read163Email()
-            self.__read_email.login(self.__username,self.__auth_code)
-        elif re.search("@126\.com", self.__username):
-            self.__read_email = Read126Email()
-            self.__read_email.login(self.__username, self.__auth_code)
-        elif re.search("@qq\.com", self.__username):
-            self.__read_email = ReadQQEmail()
-            self.__read_email.login(self.__username, self.__auth_code)
-        elif re.search("@yeah\.net",self.__username):
-            self.__read_email=ReadYealnetEmail()
+        suffix = self.__username.split("@")[-1].strip()
+        if suffix in self.__suffix_to_server.keys():
+            self.__read_email = ReadEmail(self.__suffix_to_server[suffix]["pop"],
+                                          is_ssl=self.__suffix_to_server[suffix]["ssl"])
             self.__read_email.login(self.__username,self.__auth_code)
         else:
             raise ValueError(
-                "当前仅支持163,126,QQ邮箱，其他邮箱请使用SendEmail和ReadEmail类自行初始化使用，或者到https://gitee.com/redrose2020_admin/caterpillar_mail 提Issue需求，谢谢！")
+                f"暂不支持{suffix}类型的邮箱，请到到https://gitee.com/redrose2100/caterpillar_mail或者https://github.com/redrose2100/caterpillar_mail 提Issue需求，目前支持的邮箱如下：{'  '.join(list(self.__suffix_to_server.keys()))}")
 
-    def send(self,to_addrs,subject="",context=""):
+    def send(self, to_addrs, subject="", context=""):
         """
         功能：发送邮件
         :param to_addr: 收件人邮箱地址
@@ -326,11 +302,11 @@ class Email(object):
         """
         if not self.__send_email:
             self.__init_send_email()
-        self.__send_email.password=self.__auth_code
-        self.__send_email.From=self.__username
-        self.__send_email.To=to_addrs
-        self.__send_email.context=context
-        self.__send_email.subject=subject
+        self.__send_email.password = self.__auth_code
+        self.__send_email.From = self.__username
+        self.__send_email.To = to_addrs
+        self.__send_email.context = context
+        self.__send_email.subject = subject
         self.__send_email.send()
 
     def get_all_emails_num(self):
@@ -338,12 +314,12 @@ class Email(object):
             self.__init_read_email()
         return self.__read_email.get_emails_num()
 
-    def get_latest_n_email(self,n=1, subject="", from_addr="", to_addr=""):
+    def get_latest_n_email(self, n=1, subject="", from_addr="", to_addr=""):
         if not self.__read_email:
             self.__init_read_email()
-        return self.__read_email.get_latest_n_email(n=n,subject=subject,from_addr=from_addr,to_addr=to_addr)
+        return self.__read_email.get_latest_n_email(n=n, subject=subject, from_addr=from_addr, to_addr=to_addr)
 
-    def get_latest_email(self,subject="", from_addr="", to_addr=""):
+    def get_latest_email(self, subject="", from_addr="", to_addr=""):
         """
         功能：返回最新的邮件
         @param subject: 邮件主题过滤条件，可选，不填时默认不进行过滤，支持子串或者正则匹配
@@ -353,6 +329,6 @@ class Email(object):
         """
         if not self.__read_email:
             self.__init_read_email()
-        objs=self.__read_email.get_latest_n_email(n=1,subject=subject,from_addr=from_addr,to_addr=to_addr)
+        objs = self.__read_email.get_latest_n_email(n=1, subject=subject, from_addr=from_addr, to_addr=to_addr)
         if objs:
             return objs[0]

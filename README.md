@@ -8,9 +8,108 @@ pip install -U caterpillar_mail
 ```
 
 ## caterpillar_mail 使用说明
-参照 [caterpillar_mail使用详细说明](https://blog.csdn.net/redrose2100/article/details/121390011)
+
+### 发送邮件
+如下，总共三行代码，即可实现邮件发送，目前已支持的邮箱类型见 [当前已支持的邮箱类型](email_suffix_to_server.json)，如需新增类型请提issue
+```python
+from caterpillar_mail import Email
+
+# 初始化对象，初始化参数为发件箱及授权码
+email=Email(username="hitredrose@163.com",auth_code="LRRDUxxxxEMLK")  
+# 发送邮件，第一个参数为收件人地址，第二个邮件标题，第三个标题为邮件内容
+email.send(to_addrs="redrose2100@163.com",subject="发送邮件测试标题",context="你好啊\n哈哈哈\n我是用来测试邮件的！") 
+```
+如果收件人为多人时，收件人只用逗号分隔即可
+```python
+from caterpillar_mail import Email
+
+# 初始化对象，初始化参数为发件箱及授权码
+email=Email(username="hitredrose@163.com",auth_code="LRRDUxxxxEMLK")  
+# 发送邮件，第一个参数为收件人地址，第二个邮件标题，第三个标题为邮件内容
+email.send(to_addrs="redrose2100@163.com,redrose2200@163.com",subject="发送邮件测试标题",context="你好啊\n哈哈哈\n我是用来测试邮件的！") 
+```
+
+### 接收解析邮件
+#### 获取最新的邮件并解析
+```python
+from caterpillar_mail import Email
+
+email=Email("redrose2100@163.com","XTSDDxxxxxxZBIO")
+obj = email.get_latest_email()
+print(obj.from_name)   # 发件人名字
+print(obj.from_addr)   # 发件人邮箱
+print(obj.to_name)     # 收件人名字
+print(obj.to_addr)     # 收件人邮箱
+print(obj.date)        # 邮件时间
+print(obj.subject)     # 邮件标题
+print(obj.context)     # 邮件内容
+```
+
+#### 通过邮件标题过滤，查询符合过滤条件的最新的邮件
+```python
+from caterpillar_mail import Email
+
+email=Email("redrose2100@163.com","XTSDDxxxxxZBIO")
+obj = email.get_latest_email(subject="测试邮件收发")
+print(obj.from_name)   # 发件人名字
+print(obj.from_addr)   # 发件人邮箱
+print(obj.to_name)     # 收件人名字
+print(obj.to_addr)     # 收件人邮箱
+print(obj.date)        # 邮件时间
+print(obj.subject)     # 邮件标题
+print(obj.context)     # 邮件内容
+
+```
+#### 通过发件人过滤，查询符合过滤条件的最新的邮件
+```python
+from caterpillar_mail import Email
+
+email=Email("redrose2100@163.com","XTSDDNxxxxxxxBIO")
+obj = email.get_latest_email(from_addr="985224350@qq.com")
+print(obj.from_name)   # 发件人名字
+print(obj.from_addr)   # 发件人邮箱
+print(obj.to_name)     # 收件人名字
+print(obj.to_addr)     # 收件人邮箱
+print(obj.date)        # 邮件时间
+print(obj.subject)     # 邮件标题
+print(obj.context)     # 邮件内容
+```
+
+#### 通过一个收件人过滤，查询符合条件的最新的邮件
+```python
+from caterpillar_mail import Email
+
+email=Email("redrose2100@163.com","XTSDDxxxxxZBIO")
+obj = email.get_latest_email(to_addr="redrose2200@163.com")
+print(obj.from_name)   # 发件人名字
+print(obj.from_addr)   # 发件人邮箱
+print(obj.to_name)     # 收件人名字
+print(obj.to_addr)     # 收件人邮箱
+print(obj.date)        # 邮件时间
+print(obj.subject)     # 邮件标题
+print(obj.context)     # 邮件内容
+
+```
+#### subject，from_addr，to_addr 三个参数均支持正则表达式，比如发件人使用正则过滤
+```python
+from caterpillar_mail import Email
+
+email=Email("redrose2100@163.com","XTSDDNxxxxxBIO")
+obj = email.get_latest_email(from_addr="\d{9}")
+print(obj.from_name)   # 发件人名字
+print(obj.from_addr)   # 发件人邮箱
+print(obj.to_name)     # 收件人名字
+print(obj.to_addr)     # 收件人邮箱
+print(obj.date)        # 邮件时间
+print(obj.subject)     # 邮件标题
+print(obj.context)     # 邮件内容
+
+```
 
 ## caterpillar_mail 发布记录
+
+### 1.0.12  发布日期：2021-12-11
+* 增加对谷歌邮箱的支持
 
 ### 1.0.11  发布日期：2021-11-19
 * 增加对yeah.net邮箱的支持
