@@ -19,7 +19,21 @@ email=Email(username="hitredrose@163.com",auth_code="LRRDUxxxxEMLK")
 # 发送邮件，第一个参数为收件人地址，第二个邮件标题，第三个标题为邮件内容
 email.send(to_addrs="redrose2100@163.com",subject="发送邮件测试标题",context="你好啊\n哈哈哈\n我是用来测试邮件的！") 
 ```
-如果收件人为多人时，收件人只用逗号分隔即可
+发送邮件带单个文件
+```python
+from caterpillar_mail import Email
+
+email=Email(username="hitredrose@163.com",auth_code="LRRDxxxxxxxEMLK")
+email.send(to_addrs="redrose2100@163.com",subject="发送邮件测试标题",context="你好啊\n哈哈哈\n我是用来测试邮件的，而且带附件！",attach="G:/src/caterpillar_mail/dist/caterpillar_mail-1.0.9.tar.gz")
+```
+如果发送邮件的附件为多个，中间使用逗号分隔
+```python
+from caterpillar_mail import Email
+
+email=Email(username="hitredrose@163.com",auth_code="LRRDxxxxxxxEMLK")
+email.send(to_addrs="redrose2100@163.com",subject="发送邮件测试标题",context="你好啊\n哈哈哈\n我是用来测试邮件的，而且带附件！",attach="G:/src/caterpillar_mail/dist/caterpillar_mail-1.0.9.tar.gz,E:/private/title.png")
+```
+如果收件人为多人时，收件人使用逗号分隔
 ```python
 from caterpillar_mail import Email
 
@@ -34,7 +48,7 @@ email.send(to_addrs="redrose2100@163.com,redrose2200@163.com",subject="发送邮
 ```python
 from caterpillar_mail import Email
 
-email=Email("redrose2100@163.com","XTSDDxxxxxxZBIO")
+email=Email(username="redrose2100@163.com",auth_code="XTSDDxxxxxxZBIO")
 obj = email.get_latest_email()
 print(obj.from_name)   # 发件人名字
 print(obj.from_addr)   # 发件人邮箱
@@ -49,7 +63,7 @@ print(obj.context)     # 邮件内容
 ```python
 from caterpillar_mail import Email
 
-email=Email("redrose2100@163.com","XTSDDxxxxxZBIO")
+email=Email(username="redrose2100@163.com",auth_code="XTSDDxxxxxZBIO")
 obj = email.get_latest_email(subject="测试邮件收发")
 print(obj.from_name)   # 发件人名字
 print(obj.from_addr)   # 发件人邮箱
@@ -64,7 +78,7 @@ print(obj.context)     # 邮件内容
 ```python
 from caterpillar_mail import Email
 
-email=Email("redrose2100@163.com","XTSDDNxxxxxxxBIO")
+email=Email(username="redrose2100@163.com",auth_code="XTSDDNxxxxxxxBIO")
 obj = email.get_latest_email(from_addr="985224350@qq.com")
 print(obj.from_name)   # 发件人名字
 print(obj.from_addr)   # 发件人邮箱
@@ -79,7 +93,7 @@ print(obj.context)     # 邮件内容
 ```python
 from caterpillar_mail import Email
 
-email=Email("redrose2100@163.com","XTSDDxxxxxZBIO")
+email=Email(username="redrose2100@163.com",auth_code="XTSDDxxxxxZBIO")
 obj = email.get_latest_email(to_addr="redrose2200@163.com")
 print(obj.from_name)   # 发件人名字
 print(obj.from_addr)   # 发件人邮箱
@@ -94,7 +108,7 @@ print(obj.context)     # 邮件内容
 ```python
 from caterpillar_mail import Email
 
-email=Email("redrose2100@163.com","XTSDDNxxxxxBIO")
+email=Email(username="redrose2100@163.com",auth_code="XTSDDNxxxxxBIO")
 obj = email.get_latest_email(from_addr="\d{9}")
 print(obj.from_name)   # 发件人名字
 print(obj.from_addr)   # 发件人邮箱
@@ -109,7 +123,7 @@ print(obj.context)     # 邮件内容
 ## caterpillar_mail 发布记录
 
 ### 1.0.13  发布日期：2021-12-11
-* 增加对谷歌邮箱的支持
+* 增加对谷歌邮箱的支持以及可以发送带一个或者多个文件附件，文件格式不限
 
 ### 1.0.12 发布日期：2021-11-22
 * 解决获取邮件数量和最新邮件不实时同步的问题

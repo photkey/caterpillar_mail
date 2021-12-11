@@ -1,16 +1,24 @@
 import re
 import json
+import logging
 import poplib
 import smtplib
+import mimetypes
+from email import encoders
 from pathlib import Path
 from email.parser import Parser
 from email.header import Header
 from email.utils import parseaddr
+from caterpillar_log import Log
+from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.header import decode_header
 from email.mime.multipart import MIMEMultipart
 
+
+Log("caterpillar_mail")
 CURRENT_DIR = Path(__file__).resolve().parent
+log=logging.getLogger("caterpillar_mail")
 
 
 class SendEmail(object):
@@ -26,6 +34,7 @@ class SendEmail(object):
         self.__subject = ""
         self.__context = ""
         self.__main_msg = None
+        self.__attach=[]
 
     def __del__(self):
         try:
@@ -73,12 +82,43 @@ class SendEmail(object):
     def subject(self, subject):
         self.__subject = subject
 
+    @property
+    def attach(self):
+        return self.__attach
+
+    @attach.setter
+    def attach(self,attach):
+        for elem in attach.split(","):
+            elem=elem.strip()
+            if not Path(elem).exists():
+                log.warning(f"当前邮件的附件路径 {attach}，不存在，请检查确认......")
+            else:
+                self.__attach.append(elem)
+
+    def __generate_attach_file_data(self,attach):
+        data = open(attach, 'rb')
+        ctype, encoding = mimetypes.guess_type(attach)
+        if ctype is None or encoding is not None:
+            ctype = 'application/octet-stream'
+        maintype, subtype = ctype.split('/', 1)
+        attach_data = MIMEBase(maintype, subtype)
+        attach_data.set_payload(data.read())
+        data.close()
+        encoders.encode_base64(attach_data)
+        # 修改附件名称
+        attach_data.add_header('Content-Disposition', 'attachment', filename=Path(attach).name)
+        return attach_data
+
+
     def send(self):
         self.__main_msg = MIMEMultipart()
         self.__main_msg["From"] = self.__From
         self.__main_msg["To"] = ", ".join(self.__To)
         self.__main_msg["Subject"] = Header(self.__subject, "utf-8")
         self.__main_msg.attach(MIMEText(self.__context))
+        if self.__attach:
+            for each_attach in self.__attach:
+                self.__main_msg.attach(self.__generate_attach_file_data(each_attach))
         self.__smtp.login(self.__From, self.__password)
         self.__smtp.sendmail(self.__From, self.__To, self.__main_msg.as_string())
 
@@ -292,7 +332,7 @@ class Email(object):
             raise ValueError(
                 f"暂不支持{suffix}类型的邮箱，请到到https://gitee.com/redrose2100/caterpillar_mail或者https://github.com/redrose2100/caterpillar_mail 提Issue需求，目前支持的邮箱如下：{'  '.join(list(self.__suffix_to_server.keys()))}")
 
-    def send(self, to_addrs, subject="", context=""):
+    def send(self, to_addrs, subject="", context="",attach=""):
         """
         功能：发送邮件
         :param to_addr: 收件人邮箱地址
@@ -307,6 +347,7 @@ class Email(object):
         self.__send_email.To = to_addrs
         self.__send_email.context = context
         self.__send_email.subject = subject
+        self.__send_email.attach = attach
         self.__send_email.send()
 
     def get_all_emails_num(self):
