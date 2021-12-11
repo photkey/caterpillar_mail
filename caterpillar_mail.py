@@ -242,6 +242,7 @@ class ReadEmail(object):
         self.__pop.user(username)
         self.__pop.pass_(password)
 
+
     def __decode_header_msg(self, header):
         value, charset = decode_header(header)[0]
         if charset:
@@ -287,7 +288,6 @@ class Email(object):
         if suffix in self.__suffix_to_server.keys():
             self.__read_email = ReadEmail(self.__suffix_to_server[suffix]["pop"],
                                           is_ssl=self.__suffix_to_server[suffix]["ssl"])
-            self.__read_email.login(self.__username,self.__auth_code)
         else:
             raise ValueError(
                 f"暂不支持{suffix}类型的邮箱，请到到https://gitee.com/redrose2100/caterpillar_mail或者https://github.com/redrose2100/caterpillar_mail 提Issue需求，目前支持的邮箱如下：{'  '.join(list(self.__suffix_to_server.keys()))}")
@@ -312,11 +312,13 @@ class Email(object):
     def get_all_emails_num(self):
         if not self.__read_email:
             self.__init_read_email()
+        self.__read_email.login(self.__username, self.__auth_code)
         return self.__read_email.get_emails_num()
 
     def get_latest_n_email(self, n=1, subject="", from_addr="", to_addr=""):
         if not self.__read_email:
             self.__init_read_email()
+        self.__read_email.login(self.__username, self.__auth_code)
         return self.__read_email.get_latest_n_email(n=n, subject=subject, from_addr=from_addr, to_addr=to_addr)
 
     def get_latest_email(self, subject="", from_addr="", to_addr=""):
@@ -329,6 +331,7 @@ class Email(object):
         """
         if not self.__read_email:
             self.__init_read_email()
+        self.__read_email.login(self.__username, self.__auth_code)
         objs = self.__read_email.get_latest_n_email(n=1, subject=subject, from_addr=from_addr, to_addr=to_addr)
         if objs:
             return objs[0]
